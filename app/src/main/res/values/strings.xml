@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SpamUserPretender</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="pin_request">Please enter the pin if available. Otherwise please only hit submit.</string>
+    <string name="title_activity_query">QueryActivity</string>
+
+</resources>
