@@ -1,5 +1,7 @@
 package com.alazgulec.spamuserpretender;
 
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,6 +13,7 @@ import android.os.Bundle;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.data.BarData;
@@ -63,6 +66,7 @@ public class QueryActivity extends ActionBarActivity {
     private TextView text3;
     private TextView text4;
     private TextView text5;
+    private Dialog loadingDialog;
 
     private Twitter twitter;
     private String result;
@@ -89,6 +93,8 @@ public class QueryActivity extends ActionBarActivity {
         userNameLabel.setText(userName);
 
         twitter = TwitterFactory.getSingleton();
+        loadingDialog = ProgressDialog.show(QueryActivity.this, "Twitter Spam Detector",
+                "Loading. Please wait...", true);
         new RetrieveMetrics().execute(userName);
 
     }
@@ -112,6 +118,7 @@ public class QueryActivity extends ActionBarActivity {
                 user = twitter.showUser(userName);
             } catch (TwitterException te) {
                 System.out.println(te.toString());
+                return false;
             }
 
             pictureUrl = user.getBiggerProfileImageURL();
@@ -164,7 +171,7 @@ public class QueryActivity extends ActionBarActivity {
         @Override
         protected void onPostExecute(Boolean s) {
             if (s == false) {
-                //Something went wrong
+                Toast.makeText(getApplicationContext(), "No user has found!", Toast.LENGTH_LONG).show();
             } else {
                 System.out.println("Longevity: " + String.valueOf(longevity));
                 System.out.println("Posted Tweets: " + String.valueOf(postedTweets));
@@ -234,7 +241,7 @@ public class QueryActivity extends ActionBarActivity {
 
                 chart3.setData(barData3);
             }
-
+            loadingDialog.dismiss();
             super.onPostExecute(s);
         }
 
