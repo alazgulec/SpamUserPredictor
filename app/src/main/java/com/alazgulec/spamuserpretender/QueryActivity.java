@@ -70,6 +70,7 @@ public class QueryActivity extends ActionBarActivity {
 
     private Twitter twitter;
     private String result;
+    String userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +90,7 @@ public class QueryActivity extends ActionBarActivity {
         text5 = (TextView) findViewById(R.id.text5);
 
         Intent i = getIntent();
-        String userName = i.getStringExtra("userName");
+        userName = i.getStringExtra("userName");
         userNameLabel.setText(userName);
 
         twitter = TwitterFactory.getSingleton();
@@ -109,12 +110,23 @@ public class QueryActivity extends ActionBarActivity {
         private String pictureUrl;
         private Bitmap bitmap;
 
+        private double selfLongevity;
+        private double selfPostedTweets;
+        private int selfLinkNumber;
+        private double selfReputation;
+        private User selfUser;
+
         @Override
         protected Boolean doInBackground(String... strings) {
             String userName = strings[0];
 
             User user = null;
+            selfUser = null;
+
             try {
+                long id = twitter.getId();
+                selfUser = twitter.showUser(id);
+                System.out.println("userName: " + selfUser.getScreenName());
                 user = twitter.showUser(userName);
             } catch (TwitterException te) {
                 System.out.println(te.toString());
@@ -126,6 +138,12 @@ public class QueryActivity extends ActionBarActivity {
             postedTweets = (double) user.getStatusesCount();
             linkNumber = 0;
             reputation = (double)user.getFollowersCount()/(user.getFriendsCount()+user.getFollowersCount());
+
+
+            selfLongevity = (double) daysBetween(selfUser.getCreatedAt());
+            selfPostedTweets = (double) selfUser.getStatusesCount();
+            selfLinkNumber = 0;
+            selfReputation = (double)selfUser.getFollowersCount()/(selfUser.getFriendsCount()+selfUser.getFollowersCount());
 
 
             try {
@@ -150,8 +168,10 @@ public class QueryActivity extends ActionBarActivity {
 
             Paging paging = new Paging(1, 100);
             List<twitter4j.Status> statuses = null;
+            List<twitter4j.Status> selfStatuses = null;
             try {
                 statuses = twitter.getUserTimeline(userName, paging);
+                selfStatuses = twitter.getUserTimeline(selfUser.getId(), paging);
             } catch (TwitterException te) {
                 System.out.println(te.toString());
                 return false;
@@ -160,6 +180,12 @@ public class QueryActivity extends ActionBarActivity {
             for (twitter4j.Status status : statuses) {
                 if (status.getText().toLowerCase().contains("http://")){
                     linkNumber++;
+                }
+            }
+
+            for (twitter4j.Status status : selfStatuses) {
+                if (status.getText().toLowerCase().contains("http://")){
+                    selfLinkNumber++;
                 }
             }
 
@@ -177,9 +203,9 @@ public class QueryActivity extends ActionBarActivity {
                 System.out.println("Posted Tweets: " + String.valueOf(postedTweets));
                 System.out.println("Number of URLS: " + String.valueOf((double) linkNumber / 100));
                 System.out.println("Reputation: " + String.valueOf(reputation));
-                text1.setText("Longevity: " + String.valueOf(longevity));
+                text1.setText("Longevity: " + String.valueOf(longevity) + " days");
                 text2.setText("Tweet #: " + String.valueOf(postedTweets));
-                text3.setText("# of URLS: " + String.valueOf((double) linkNumber / 100));
+                text3.setText("# of URLS per tweet: " + String.valueOf((double) linkNumber / 100));
                 text4.setText("Rep: " + String.valueOf(reputation));
                 if(result.equals("1")) {
                     text5.setText("SPAM!");
@@ -193,22 +219,22 @@ public class QueryActivity extends ActionBarActivity {
 
                 ArrayList<BarEntry> setOne = new ArrayList<BarEntry>();
                 BarEntry l1u1 = new BarEntry((float) longevity, 0);
-                BarEntry l1u2 = new BarEntry(1369, 1);
+                BarEntry l1u2 = new BarEntry((float) selfLongevity, 1);
                 setOne.add(l1u1);
                 setOne.add(l1u2);
                 ArrayList<BarEntry> setTwo = new ArrayList<BarEntry>();
                 BarEntry p1u1 = new BarEntry((float) postedTweets, 0);
-                BarEntry p1u2 = new BarEntry(36629, 1);
+                BarEntry p1u2 = new BarEntry((float) selfPostedTweets, 1);
                 setTwo.add(p1u1);
                 setTwo.add(p1u2);
                 ArrayList<BarEntry> setThree = new ArrayList<BarEntry>();
                 BarEntry n1u1 = new BarEntry((float) linkNumber/100, 0);
-                BarEntry n1u2 = new BarEntry((float) 0.23, 1);
+                BarEntry n1u2 = new BarEntry((float) selfLinkNumber/100, 1);
                 setThree.add(n1u1);
                 setThree.add(n1u2);
                 ArrayList<BarEntry> setFour = new ArrayList<BarEntry>();
                 BarEntry r1u1 = new BarEntry((float) reputation, 0);
-                BarEntry r1u2 = new BarEntry((float) 0.37, 1);
+                BarEntry r1u2 = new BarEntry((float) selfReputation, 1);
                 setFour.add(r1u1);
                 setFour.add(r1u2);
 
@@ -223,8 +249,8 @@ public class QueryActivity extends ActionBarActivity {
                 dataSetArray.add(barDataSet4);
 
                 ArrayList<String> titleArray = new ArrayList<String>();
-                titleArray.add("User 1");
-                titleArray.add("User 2");
+                titleArray.add(userName);
+                titleArray.add(selfUser.getScreenName());
 
                 BarData barData = new BarData(titleArray, barDataSet1);
                 BarData barData2 = new BarData(titleArray, barDataSet2);
@@ -233,13 +259,15 @@ public class QueryActivity extends ActionBarActivity {
                 chart.setDrawValueAboveBar(true);
                 chart.setDrawGridBackground(false);
                 chart.setDrawBarShadow(false);
-                chart.setDescription("");
+                chart.setDescription("Longevity in days");
                 chart.setNoDataTextDescription("");
                 chart.setData(barData);
 
                 chart2.setData(barData2);
+                chart2.setDescription("");
 
                 chart3.setData(barData3);
+                chart3.setDescription("");
             }
             loadingDialog.dismiss();
             super.onPostExecute(s);
