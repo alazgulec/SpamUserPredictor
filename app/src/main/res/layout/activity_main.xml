@@ -5,31 +5,47 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <TextView
+        android:text="Twitter Spam Detector"
+        android:textSize="32dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:id="@+id/title"
+        android:paddingTop="80dp"
+        android:paddingBottom="80dp"/>
+
+
+    <TextView
         android:text="@string/pin_request"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:id="@+id/pin_placeholder" />
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:id="@+id/username_input" />
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:id="@+id/pin" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Submit"
+        android:layout_gravity="center"
         android:id="@+id/submit_button" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Check!"
+        android:layout_gravity="center"
         android:visibility="gone"
         android:id="@+id/user_submit_button" />
 </LinearLayout>

@@ -3,32 +3,32 @@ package com.alazgulec.spamuserpretender;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.Entry;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.BufferedHttpEntity;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicHttpResponse;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.util.EntityUtils;
-import org.ksoap2.SoapEnvelope;
-import org.ksoap2.serialization.SoapObject;
-import org.ksoap2.serialization.SoapSerializationEnvelope;
-import org.ksoap2.transport.HttpTransportSE;
+
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -55,16 +55,34 @@ public class QueryActivity extends ActionBarActivity {
 
     private TextView userNameLabel;
     private ImageView avatar;
+    private BarChart chart;
+    private BarChart chart2;
+    private BarChart chart3;
+    private TextView text1;
+    private TextView text2;
+    private TextView text3;
+    private TextView text4;
+    private TextView text5;
 
     private Twitter twitter;
+    private String result;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_query);
 
         userNameLabel = (TextView) findViewById(R.id.userName);
         avatar = (ImageView) findViewById(R.id.avatar);
+        chart = (BarChart) findViewById(R.id.barchart);
+        chart2 = (BarChart) findViewById(R.id.barchart2);
+        chart3 = (BarChart) findViewById(R.id.barchart3);
+        text1 = (TextView) findViewById(R.id.text1);
+        text2 = (TextView) findViewById(R.id.text2);
+        text3 = (TextView) findViewById(R.id.text3);
+        text4 = (TextView) findViewById(R.id.text4);
+        text5 = (TextView) findViewById(R.id.text5);
 
         Intent i = getIntent();
         String userName = i.getStringExtra("userName");
@@ -73,18 +91,6 @@ public class QueryActivity extends ActionBarActivity {
         twitter = TwitterFactory.getSingleton();
         new RetrieveMetrics().execute(userName);
 
-//        Twitter twitter = TwitterFactory.getSingleton();
-//        List<Status> statuses = null;
-//        try {
-//            statuses = twitter.getHomeTimeline();
-//        } catch (TwitterException te) {
-//            System.out.println(te.toString());
-//        }
-//        System.out.println("Showing home timeline.");
-//        for (Status status : statuses) {
-//            System.out.println(status.getUser().getName() + ":" +
-//                    status.getText());
-//        }
     }
 
 
@@ -96,11 +102,6 @@ public class QueryActivity extends ActionBarActivity {
         private double reputation;
         private String pictureUrl;
         private Bitmap bitmap;
-
-        private static final String NAMESPACE = "http://10.0.2.2:8086/TwitterSpamDetector";
-        private static final String URL ="http://10.0.2.2:8086/TwitterSpamDetector?wsdl";
-        private static final String SOAP_ACTION = "http://10.0.2.2:8086/TwitterSpamDetector/predict";
-        private static final String METHOD_NAME = "predict";
 
         @Override
         protected Boolean doInBackground(String... strings) {
@@ -122,7 +123,6 @@ public class QueryActivity extends ActionBarActivity {
 
             try {
                 URL url = new URL(pictureUrl);
-                //try this url = "http://0.tqn.com/d/webclipart/1/0/5/l/4/floral-icon-5.jpg"
                 HttpGet httpRequest = null;
 
                 httpRequest = new HttpGet(url.toURI());
@@ -151,47 +151,12 @@ public class QueryActivity extends ActionBarActivity {
             }
 
             for (twitter4j.Status status : statuses) {
-//                String regex = "\\(?\\b(http://|www[.])[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|]";
-//                Pattern p = Pattern.compile(regex);
-//                Matcher m = p.matcher(status.toString());
-//                while (m.find()) {
-//                    linkNumber++;
-//                    String urlStr = m.group();
-//                    if (urlStr.startsWith("(") && urlStr.endsWith(")")) {
-//                        urlStr = urlStr.substring(1, urlStr.length() - 1);
-//                    }
-//                }
-
                 if (status.getText().toLowerCase().contains("http://")){
                     linkNumber++;
                 }
             }
-//            SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
-//            request.addProperty("arg0", String.valueOf(postedTweets));
-//            request.addProperty("arg1", String.valueOf(longevity));
-//            request.addProperty("arg2", String.valueOf((double) (linkNumber / 100)));
-//            request.addProperty("arg3", String.valueOf(reputation));
-//            SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
-//            envelope.setOutputSoapObject(request);
-//            HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
-//            try {
-//                androidHttpTransport.call(SOAP_ACTION, envelope);
-//
-//                //SoapPrimitive  resultsRequestSOAP = (SoapPrimitive) envelope.getResponse();
-//                // SoapPrimitive  resultsRequestSOAP = (SoapPrimitive) envelope.getResponse();
-//                SoapObject resultsRequestSOAP = (SoapObject) envelope.bodyIn;
-//
-//
-//                System.out.println("Response: "+resultsRequestSOAP.toString());
-//
-//
-//            } catch (Exception e) {
-//
-//                System.out.println("Error"+e);
-//            }
 
-
-            String result = predict(String.valueOf(postedTweets), String.valueOf(longevity), String.valueOf((double) (linkNumber / 100)), String.valueOf(reputation));
+            result = predict(String.valueOf(postedTweets), String.valueOf(longevity), String.valueOf((double) linkNumber / 100), String.valueOf(reputation));
             System.out.println("Result: " + result);
             return true;
         }
@@ -203,11 +168,73 @@ public class QueryActivity extends ActionBarActivity {
             } else {
                 System.out.println("Longevity: " + String.valueOf(longevity));
                 System.out.println("Posted Tweets: " + String.valueOf(postedTweets));
-                System.out.println("Number of URLS: " + String.valueOf(linkNumber));
+                System.out.println("Number of URLS: " + String.valueOf((double) linkNumber / 100));
                 System.out.println("Reputation: " + String.valueOf(reputation));
+                text1.setText("Longevity: " + String.valueOf(longevity));
+                text2.setText("Tweet #: " + String.valueOf(postedTweets));
+                text3.setText("# of URLS: " + String.valueOf((double) linkNumber / 100));
+                text4.setText("Rep: " + String.valueOf(reputation));
+                if(result.equals("1")) {
+                    text5.setText("SPAM!");
+                    text5.setTextColor(Color.RED);
+                } else {
+                    text5.setText("LEGIT!");
+                    text5.setTextColor(Color.GREEN);
+                }
+
                 avatar.setImageBitmap(bitmap);
 
+                ArrayList<BarEntry> setOne = new ArrayList<BarEntry>();
+                BarEntry l1u1 = new BarEntry((float) longevity, 0);
+                BarEntry l1u2 = new BarEntry(1369, 1);
+                setOne.add(l1u1);
+                setOne.add(l1u2);
+                ArrayList<BarEntry> setTwo = new ArrayList<BarEntry>();
+                BarEntry p1u1 = new BarEntry((float) postedTweets, 0);
+                BarEntry p1u2 = new BarEntry(36629, 1);
+                setTwo.add(p1u1);
+                setTwo.add(p1u2);
+                ArrayList<BarEntry> setThree = new ArrayList<BarEntry>();
+                BarEntry n1u1 = new BarEntry((float) linkNumber/100, 0);
+                BarEntry n1u2 = new BarEntry((float) 0.23, 1);
+                setThree.add(n1u1);
+                setThree.add(n1u2);
+                ArrayList<BarEntry> setFour = new ArrayList<BarEntry>();
+                BarEntry r1u1 = new BarEntry((float) reputation, 0);
+                BarEntry r1u2 = new BarEntry((float) 0.37, 1);
+                setFour.add(r1u1);
+                setFour.add(r1u2);
+
+                BarDataSet barDataSet1 = new BarDataSet(setOne, "Longevity");
+                BarDataSet barDataSet2 = new BarDataSet(setTwo, "Posted Tweets");
+                BarDataSet barDataSet3 = new BarDataSet(setThree, "Number of URLs");
+                BarDataSet barDataSet4 = new BarDataSet(setFour, "Reputation");
+                ArrayList<BarDataSet> dataSetArray = new ArrayList<BarDataSet>();
+
+                barDataSet3.setColor(Color.GREEN);
+                dataSetArray.add(barDataSet3);
+                dataSetArray.add(barDataSet4);
+
+                ArrayList<String> titleArray = new ArrayList<String>();
+                titleArray.add("User 1");
+                titleArray.add("User 2");
+
+                BarData barData = new BarData(titleArray, barDataSet1);
+                BarData barData2 = new BarData(titleArray, barDataSet2);
+                BarData barData3 = new BarData(titleArray, dataSetArray);
+
+                chart.setDrawValueAboveBar(true);
+                chart.setDrawGridBackground(false);
+                chart.setDrawBarShadow(false);
+                chart.setDescription("");
+                chart.setNoDataTextDescription("");
+                chart.setData(barData);
+
+                chart2.setData(barData2);
+
+                chart3.setData(barData3);
             }
+
             super.onPostExecute(s);
         }
 
