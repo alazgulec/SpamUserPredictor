@@ -2,12 +2,14 @@ package com.alazgulec.spamuserpretender;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.Vibrator;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Window;
@@ -208,6 +210,10 @@ public class QueryActivity extends ActionBarActivity {
                 text3.setText("# of URLS per tweet: " + String.valueOf((double) linkNumber / 100));
                 text4.setText("Rep: " + String.valueOf(reputation));
                 if(result.equals("1")) {
+                    Context context = getApplicationContext();
+                    Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+                    // Vibrate for 500 milliseconds
+                    v.vibrate(1500);
                     text5.setText("SPAM!");
                     text5.setTextColor(Color.RED);
                 } else {
